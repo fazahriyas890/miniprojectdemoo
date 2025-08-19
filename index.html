@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered Lecture Summarizer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a0ca3;
+            --primary-light: #4895ef;
+            --secondary: #7209b7;
+            --accent: #f72585;
+            --success: #4cc9f0;
+            --warning: #f9c74f;
+            --error: #f94144;
+            --dark: #212529;
+            --darker: #121212;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --card-bg: #ffffff;
+            --card-shadow: rgba(0, 0, 0, 0.05);
+            --transition: all 0.3s ease;
+        }
+
+        .dark-mode {
+            --primary: #4895ef;
+            --primary-dark: #3a0ca3;
+            --primary-light: #4361ee;
+            --secondary: #b5179e;
+            --accent: #f72585;
+            --success: #4cc9f0;
+            --warning: #f9c74f;
+            --error: #f94144;
+            --dark: #e9ecef;
+            --darker: #121212;
+            --light: #1a1a1a;
+            --gray: #adb5bd;
+            --light-gray: #2d2d2d;
+            --card-bg: #1e1e1e;
+            --card-shadow: rgba(0, 0, 0, 0.2);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--light) 0%, #edf2f7 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            transition: var(--transition);
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, var(--darker) 0%, #1a1a2e 100%);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo-icon {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+        
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .theme-toggle {
+            background: var(--card-bg);
+            border: 1px solid var(--light-gray);
+            width: 50px;
+            height: 26px;
+            border-radius: 50px;
+            position: relative;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            padding: 0 3px;
+            transition: var(--transition);
+        }
+        
+        .theme-toggle i {
+            font-size: 14px;
+            color: var(--warning);
+            transition: var(--transition);
+        }
+        
+        .theme-toggle-ball {
+            position Moulin Rouge;
+            background: var(--primary);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            transition: var(--transition);
+            left: 3px;
+        }
+        
+        .dark-mode .theme-toggle-ball {
+            transform: translateX(24px);
+        }
+        
+        .auth-section {
+            max-width: 400px;
+            margin: 20px auto;
+        }
+        
+        .hero {
+            text-align: center;
+            padding: 40px 0;
+            margin-bottom: 30px;
+        }
+        
+        .hero h1 {
+            font-size: 2.8rem;
+            margin-bottom: 16px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto 30px;
+            color: var(--gray);
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px var(--card-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: var(--transition);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px var(--card-shadow);
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+        }
+        
+        .input-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.95rem;
+        }
+        
+        input[type="url"], input[type="text"], input[type="password"], select, textarea {
+            width: 100%;
+            padding: 16px 20px;
+            border: 1px solid var(--light-gray);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: var(--transition);
+            background: var(--card-bg);
+            color: var(--dark);
+        }
+        
+        input[type="url"]:focus, input[type="text"]:focus, input[type="password"]:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.2);
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 16px 32px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(67, 97, 238, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-secondary {
+            background: var(--light-gray);
+            color: var(--dark);
+        }
+        
+        .btn-secondary:hover {
+            box-shadow: 0 8px 20px rgba(108, 117, 125, 0.3);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #3a86ff);
+        }
+        
+        .btn-success:hover {
+            box-shadow: 0 8px 20px rgba(76, 201, 240, 0.3);
+        }
+        
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 25px;
+        }
+        
+        .progress-container {
+            margin: 30px 0;
+        }
+        
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background-color: var(--light-gray);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .status {
+            text-align: center;
+            margin: 25px 0;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .summary-container {
+            margin-top: 30px;
+        }
+        
+        .summary-content {
+            background-color: var(--light);
+            padding: 30px;
+            border-radius: 12px;
+            max-height: 500px;
+            overflow-y: auto;
+            line-height: 1.8;
+            border: 1px solid var(--light-gray);
+        }
+        
+        .summary-content h2 {
+            color: var(--primary);
+            margin: 20px 0 12px;
+            font-size: 1.5rem;
+        }
+        
+        .summary-content h3 {
+            color: var(--primary-light);
+            margin: 16px 0 10px;
+            font-size: 1.2rem;
+        }
+        
+        .summary-content p {
+            margin-bottom: 16px;
+        }
+        
+        .summary-content ul, .summary-content ol {
+            margin-left: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .key-term {
+            background: linear-gradient(135deg, rgba(255, 248, 197, 0.7), rgba(255, 230, 0, 0.3));
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .formula {
+            font-style: italic;
+            background: rgba(67, 97, 238, 0.1);
+            padding: 12px 16px;
+            border-left: 4px solid var(--primary);
+            margin: 15px 0;
+            display: block;
+            border-radius: 0 8px 8px 0;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .history-item {
+            border-bottom: 1px solid var(--light-gray);
+            padding: 15px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        
+        .notes-section {
+            margin-top: 20px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+        
+        .feature-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 5px 20px var(--card-shadow);
+            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px var(--card-shadow);
+        }
+        
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 24px;
+        }
+        
+        .feature-card h3 {
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+        
+        .feature-card p {
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            padding: 30px;
+            color: var(--gray);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--light-gray);
+        }
+        
+        @media (max-width: 768px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            
+            .hero p {
+                font-size: 1.1rem;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo-text {
+                font-size: 1.5rem;
+            }
+            
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="logo-text">LecSum AI</div>
+            </div>
+            <div class="theme-toggle" id="theme-toggle">
+                <div class="theme-toggle-ball"></div>
+                <i class="fas fa-sun"></i>
+                <i class="fas fa-moon"></i>
+            </div>
+        </header>
+
+        <div class="card auth-section" id="auth-section">
+            <h2 class="card-title"><i class="fas fa-user"></i> User Authentication</h2>
+            <div class="input-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="Enter username">
+            </div>
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter password">
+            </div>
+            <div class="action-buttons">
+                <button id="login-btn" class="btn">Login</button>
+                <button id="register-btn" class="btn btn-secondary">Register</button>
+                <button id="guest-btn" class="btn btn-success">Continue as Guest</button>
+            </div>
+            <p id="auth-message" class="status"></p>
+        </div>
+
+        <section class="hero">
+            <h1>AI-Powered Lecture Summarizer</h1>
+            <p>Transform YouTube lectures into clean, structured study notes with advanced humor filtering and content enhancement</p>
+            <button class="btn" id="demo-btn"><i class="fas fa-bolt"></i> Try Demo</button>
+        </section>
+        
+        <div class="card" id="main-section">
+            <h2 class="card-title"><i class="fas fa-link"></i> YouTube Lecture URL</h2>
+            <div class="input-group">
+                <label for="youtube-url">Enter YouTube Video URL</label>
+                <input type="url" id="youtube-url" placeholder="https://www.youtube.com/watch?v=...">
+            </div>
+            
+            <h2 class="card-title"><i class="fas fa-cog"></i> Processing Options</h2>
+            <div class="options-grid">
+                <div class="input-group">
+                    <label for="humor-filter">Humor/Off-topic Filtering</label>
+                    <select id="humor-filter">
+                        <option value="aggressive">Aggressive Filtering</option>
+                        <option value="moderate" selected>Moderate Filtering</option>
+                        <option value="light">Light Filtering</option>
+                        <option value="none">No Filtering</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label for="output-format">Output Format</label>
+                    <select id="output-format">
+                        <option value="structured" selected>Structured Notes</option>
+                        <option value="bullet">Bullet Points</option>
+                        <option value="outline">Outline Format</option>
+                        <option value="cornell">Cornell Notes</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label for="detail-level">Detail Level</label>
+                    <select id="detail-level">
+                        <option value="concise">Concise</option>
+                        <option value="balanced" selected>Balanced</option>
+                        <option value="detailed">Detailed</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="subject-area">Subject Area</label>
+                    <select id="subject-area">
+                        <option value="general" selected>General</option>
+                        <option value="stem">STEM</option>
+                        <option value="humanities">Humanities</option>
+                        <option value="business">Business</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="language-preference">Summary Language</label>
+                    <select id="language-preference">
+                        <option value="en" selected>English</option>
+                        <option value="es">Spanish</option>
+                        <option value="fr">French</option>
+                        <option value="de">German</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button id="generate-btn" class="btn"><i class="fas fa-bolt"></i> Generate Summary</button>
+        </div>
+        
+        <div id="processing-section" class="card hidden">
+            <h2 class="card-title"><i class="fas fa-spinner fa-spin"></i> Processing Your Lecture</h2>
+            
+            <div class="progress-container">
+                <div class="progress-info">
+                    <span>Processing</span>
+                    <span id="progress-percent">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress" id="progress-bar"></div>
+                </div>
+            </div>
+            
+            <div class="status" id="status-text">
+                <i class="fas fa-sync fa-spin"></i> Initializing...
+            </div>
+            
+            <div class="summary-container hidden" id="results-container">
+                <h2 class="card-title"><i class="fas fa-file-alt"></i> Generated Summary</h2>
+                
+                <div class="summary-content" id="summary-content"></div>
+                
+                <div class="notes-section hidden" id="notes-section">
+                    <h2 class="card-title"><i class="fas fa-sticky-note"></i> Add Personal Notes</h2>
+                    <textarea id="user-notes" rows="4" placeholder="Add your personal notes here..."></textarea>
+                    <button id="save-notes-btn" class="btn">Save Notes</button>
+                </div>
+                
+                <div class="action-buttons">
+                    <button id="download-btn" class="btn btn-success"><i class="fas fa-download"></i> Download as Text</button>
+                    <button id="markdown-btn" class="btn"><i class="fas fa-file-alt"></i> Save as Markdown</button>
+                    <button id="copy-btn" class="btn btn-secondary"><i class="fas fa-copy"></i> Copy to Clipboard</button>
+                    <button id="share-btn" class="btn hidden"><i class="fas fa-share-alt"></i> Share Summary</button>
+                    <button id="save-summary-btn" class="btn hidden"><i class="fas fa-save"></i> Save Summary</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card hidden" id="history-section">
+            <h2 class="card-title"><i class="fas fa-history"></i> Saved Summaries</h2>
+            <div id="history-list"></div>
+        </div>
+
+        <h2 style="margin: 40px 0 20px; text-align: center; color: var(--primary);">How It Works</h2>
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-download"></i>
+                </div>
+                <h3>Transcript Extraction</h3>
+                <p>Fetches or transcribes audio from YouTube videos with high accuracy using advanced speech recognition</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-broom"></i>
+                </div>
+                <h3>Content Cleaning</h3>
+                <p>Removes fillers, timestamps, and other noise from the transcript while preserving key information</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-laugh"></i>
+                </div>
+                <h3>Humor Filtering</h3>
+                <p>Identifies and removes jokes and irrelevant content using advanced NLP classification techniques</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <h3>Smart Summarization</h3>
+                <p>Generates concise, hierarchical notes with highlighted key terms and formulas for efficient studying</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-globe"></i>
+                </div>
+                <h3>Multi-language Support</h3>
+                <p>Generate summaries in multiple languages for global accessibility</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-share-alt"></i>
+                </div>
+                <h3>Share Summaries</h3>
+                <p>Share your summaries with peers (logged-in users only)</p>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>AI-Powered Lecture Summarizer Mini Project | 2025</p>
+        <p>Advanced NLP, Speech Recognition, and Humor Detection</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const authSection = document.getElementById('auth-section');
+            const mainSection = document.getElementById('main-section');
+            const historySection = document.getElementById('history-section');
+            const loginBtn = document.getElementById('login-btn');
+            const registerBtn = document.getElementById('register-btn');
+            const guestBtn = document.getElementById('guest-btn');
+            const generateBtn = document.getElementById('generate-btn');
+            const demoBtn = document.getElementById('demo-btn');
+            const processingSection = document.getElementById('processing-section');
+            const progressBar = document.getElementById('progress-bar');
+            const progressPercent = document.getElementById('progress-percent');
+            const statusText = document.getElementById('status-text');
+            const resultsContainer = document.getElementById('results-container');
+            const summaryContent = document.getElementById('summary-content');
+            const notesSection = document.getElementById('notes-section');
+            const saveNotesBtn = document.getElementById('save-notes-btn');
+            const downloadBtn = document.getElementById('download-btn');
+            const markdownBtn = document.getElementById('markdown-btn');
+            const copyBtn = document.getElementById('copy-btn');
+            const shareBtn = document.getElementById('share-btn');
+            const saveSummaryBtn = document.getElementById('save-summary-btn');
+            const historyList = document.getElementById('history-list');
+            const authMessage = document.getElementById('auth-message');
+            const themeToggle = document.getElementById('theme-toggle');
+
+            let isLoggedIn = false;
+            let currentUser = null;
+            let userSummaries = [];
+
+            // Simulated user database (in real app, this would be a backend)
+            const users = {};
+
+            // Theme toggle functionality
+            themeToggle.addEventListener('click', function() {
+                document.body.classList.toggle('dark-mode');
+                localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+            });
+
+            // Load saved theme
+            if (localStorage.getItem('theme') === 'dark') {
+                document.body.classList.add('dark-mode');
+            }
+
+            loginBtn.addEventListener('click', function() {
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                
+                if (users[username] && users[username].password === password) {
+                    isLoggedIn = true;
+                    currentUser = username;
+                    authMessage.textContent = 'Login successful!';
+                    authMessage.style.color = 'green';
+                    authSection.classList.add('hidden');
+                    mainSection.classList.remove('hidden');
+                    historySection.classList.remove('hidden');
+                    saveSummaryBtn.classList.remove('hidden');
+                    shareBtn.classList.remove('hidden');
+                    notesSection.classList.remove('hidden');
+                    loadUserHistory(username);
+                    showNotification('Welcome back!', 'success');
+                } else {
+                    authMessage.textContent = 'Invalid credentials';
+                    authMessage.style.color = 'red';
+                    showNotification('Invalid credentials', 'error');
+                }
+            });
+
+            registerBtn.addEventListener('click', function() {
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                
+                if (username && password) {
+                    if (!users[username]) {
+                        users[username] = { password, summaries: [] };
+                        authMessage.textContent = 'Registration successful! Please login.';
+                        authMessage.style.color = 'green';
+                        showNotification('Registration successful!', 'success');
+                    } else {
+                        authMessage.textContent = 'Username already exists';
+                        authMessage.style.color = 'red';
+                        showNotification('Username already exists', 'error');
+                    }
+                } else {
+                    authMessage.textContent = 'Please fill all fields';
+                    authMessage.style.color = 'red';
+                    showNotification('Please fill all fields', 'error');
+                }
+            });
+
+            guestBtn.addEventListener('click', function() {
+                isLoggedIn = false;
+                currentUser = null;
+                authSection.classList.add('hidden');
+                mainSection.classList.remove('hidden');
+                historySection.classList.add('hidden');
+                saveSummaryBtn.classList.add('hidden');
+                shareBtn.classList.add('hidden');
+                notesSection.classList.add('hidden');
+                authMessage.textContent = '';
+                showNotification('Continuing as guest. Some features are limited.', 'success');
+            });
+
+            generateBtn.addEventListener('click', function() {
+                const youtubeUrl = document.getElementById('youtube-url').value;
+                
+                if (!youtubeUrl) {
+                    showNotification('Please enter a valid YouTube URL', 'error');
+                    return;
+                }
+                
+                processingSection.classList.remove('hidden');
+                simulateProcessing();
+            });
+
+            demoBtn.addEventListener('click', function() {
+                document.getElementById('youtube-url').value = 'https://www.youtube.com/watch?v=rfscVS0vtbw';
+                showNotification('Demo URL loaded. Click Generate Summary to continue.', 'success');
+            });
+
+            saveNotesBtn.addEventListener('click', function() {
+                if (!isLoggedIn) {
+                    showNotification('Please log in to add notes', 'error');
+                    return;
+                }
+                const notes = document.getElementById('user-notes').value;
+                if (notes) {
+                    const notesDiv = document.createElement('div');
+                    notesDiv.className = 'notes-section';
+                    notesDiv.innerHTML = `<h3>User Notes</h3><p>${notes}</p>`;
+                    summaryContent.appendChild(notesDiv);
+                    showNotification('Notes saved successfully!', 'success');
+                }
+            });
+
+            downloadBtn.addEventListener('click', function() {
+                const content = summaryContent.innerText;
+                const blob = new Blob([content], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'summary.txt';
+                a.click();
+                URL.revokeObjectURL(url);
+                showNotification('Summary downloaded as text!', 'success');
+            });
+
+            markdownBtn.addEventListener('click', function() {
+                const content = summaryContent.innerText;
+                const blob = new Blob([content], { type: 'text/markdown' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'summary.md';
+                a.click();
+                URL.revokeObjectURL(url);
+                showNotification('Summary saved as Markdown!', 'success');
+            });
+
+            copyBtn.addEventListener('click', function() {
+                const content = summaryContent.innerText;
+                navigator.clipboard.writeText(content).then(() => {
+                    showNotification('Summary copied to clipboard!', 'success');
+                });
+            });
+
+            shareBtn.addEventListener('click', function() {
+                if (!isLoggedIn) {
+                    showNotification('Please log in to share summaries', 'error');
+                    return;
+                }
+                const content = summaryContent.innerText;
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'Lecture Summary',
+                        text: content,
+                        url: document.getElementById('youtube-url').value
+                    }).then(() => {
+                        showNotification('Summary shared successfully!', 'success');
+                    }).catch(() => {
+                        showNotification('Error sharing summary', 'error');
+                    });
+                } else {
+                    showNotification('Sharing not supported in this browser', 'error');
+                }
+            });
+
+            saveSummaryBtn.addEventListener('click', function() {
+                if (!isLoggedIn) {
+                    showNotification('Please log in to save summaries', 'error');
+                    return;
+                }
+                const summary = {
+                    url: document.getElementById('youtube-url').value,
+                    content: summaryContent.innerHTML,
+                    notes: document.getElementById('user-notes').value,
+                    timestamp: new Date().toLocaleString(),
+                    subject: document.getElementById('subject-area').value,
+                    language: document.getElementById('language-preference').value
+                };
+                users[currentUser].summaries.push(summary);
+                updateHistoryDisplay(users[currentUser].summaries);
+                showNotification('Summary saved successfully!', 'success');
+            });
+
+            function simulateProcessing() {
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += Math.random() * 5;
+                    if (progress > 100) progress = 100;
+                    
+                    progressBar.style.width = progress + '%';
+                    progressPercent.textContent = Math.round(progress) + '%';
+                    
+                    if (progress < 20) {
+                        statusText.innerHTML = '<i class="fas fa-sync fa-spin"></i> Fetching video transcript...';
+                    } else if (progress < 40) {
+                        statusText.innerHTML = '<i class="fas fa-sync fa-spin"></i> Preprocessing and cleaning text...';
+                    } else if (progress < 60) {
+                        statusText.innerHTML = '<i class="fas fa-sync fa-spin"></i> Filtering humor and off-topic content...';
+                    } else if (progress < 80) {
+                        statusText.innerHTML = '<i class="fas fa-sync fa-spin"></i> Translating to selected language...';
+                    } else if (progress < 90) {
+                        statusText.innerHTML = '<i class="fas fa-sync fa-spin"></i> Generating summary...';
+                    } else if (progress >= 100) {
+                        statusText.innerHTML = '<i class="fas fa-check-circle"></i> Complete!';
+                        clearInterval(interval);
+                        setTimeout(showResults, 800);
+                    }
+                }, 300);
+            }
+
+            function showResults() {
+                resultsContainer.classList.remove('hidden');
+                summaryContent.innerHTML = `
+                    <h2>Introduction to Calculus</h2>
+                    <p>Calculus is the mathematical study of continuous change, similar to how geometry is the study of shape and algebra is the study of generalizations of arithmetic operations.</p>
+                    
+                    <h3>Key Concepts</h3>
+                    <ul>
+                        <li><span class="key-term">Limits</span>: The value that a function approaches as the input approaches some value</li>
+                        <li><span class="key-term">Derivatives</span>: Measure how a function changes as its input changes</li>
+                        <li><span class="key-term">Integrals</span>: Describe accumulation of quantities and the areas under and between curves</li>
+                    </ul>
+                    
+                    <h3>Fundamental Theorem of Calculus</h3>
+                    <p>This theorem links the concept of differentiating a function with the concept of integrating a function.</p>
+                    <div class="formula">∫ₐᵇ f(x) dx = F(b) - F(a)</div>
+                    <p>Where F is any antiderivative of f on [a, b].</p>
+                    
+                    <h3>Applications</h3>
+                    <p>Calculus has widespread applications in science, economics, and engineering and can solve many problems that algebra alone cannot.</p>
+                    
+                    <h2>Derivatives</h2>
+                    <p>The derivative of a function of a real variable measures the sensitivity to change of the function value with respect to a change in its argument.</p>
+                    
+                    <h3>Common Derivative Rules</h3>
+                    <ul>
+                        <li>Power rule: d/dx(xⁿ) = nxⁿ⁻¹</li>
+                        <li>Product rule: d/dx(uv) = u'v + uv'</li>
+                        <li>Chain rule: d/dx(f(g(x))) = f'(g(x))·g'(x)</li>
+                    </ul>
+                    
+                    <h3>Example Application</h3>
+                    <p>Derivatives can be used to find the maximum and minimum values of functions, which is useful in optimization problems across various fields.</p>
+                `;
+                resultsContainer.scrollIntoView({ behavior: 'smooth' });
+            }
+
+            function loadUserHistory(username) {
+                updateHistoryDisplay(users[username]?.summaries || []);
+            }
+
+            function updateHistoryDisplay(summaries) {
+                historyList.innerHTML = '';
+                summaries.forEach((summary, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'history-item';
+                    item.innerHTML = `
+                        <div>
+                            <strong>Summary ${index + 1}</strong> - ${summary.timestamp}<br>
+                            <a href="${summary.url}" target="_blank">${summary.url}</a><br>
+                            <small>Subject: ${summary.subject}, Language: ${summary.language}</small>
+                        </div>
+                        <button class="btn btn-secondary view-summary" data-index="${index}">View</button>
+                    `;
+                    historyList.appendChild(item);
+                });
+
+                document.querySelectorAll('.view-summary').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const index = this.getAttribute('data-index');
+                        summaryContent.innerHTML = summaries[index].content;
+                        document.getElementById('user-notes').value = summaries[index].notes || '';
+                        resultsContainer.classList.remove('hidden');
+                        processingSection.classList.remove('hidden');
+                        showNotification('Summary loaded from history!', 'success');
+                    });
+                });
+            }
+
+            function showNotification(message, type) {
+                const notification = document.createElement('div');
+                notification.textContent = message;
+                notification.style.position = 'fixed';
+                notification.style.bottom = '20px';
+                notification.style.right = '20px';
+                notification.style.padding = '12px 20px';
+                notification.style.borderRadius = '8px';
+                notification.style.color = 'white';
+                notification.style.fontWeight = '500';
+                notification.style.zIndex = '1000';
+                notification.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                notification.style.transform = 'translateY(100px)';
+                notification.style.opacity = '0';
+                notification.style.transition = 'all 0.3s ease';
+                
+                if (type === 'error') {
+                    notification.style.background = 'var(--error)';
+                } else {
+                    notification.style.background = 'var(--success)';
+                }
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.style.transform = 'translateY(0)';
+                    notification.style.opacity = '1';
+                }, 10);
+                
+                setTimeout(() => {
+                    notification.style.transform = 'translateY(100px)';
+                    notification.style.opacity = '0';
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 300);
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>
